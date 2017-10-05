@@ -1,0 +1,28 @@
+{
+    "name": "michaelcooke/guardian",
+    "description": "A Laravel 5 package that provides a simple permissions and roles implementation",
+    "keywords": ["laravel", "laravel-5", "permissions", "restrictions", "roles"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Michael Cooke",
+            "email": "michael.frank.cooke@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+        "laravel/laravel": "~5.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "MichaelCooke\\Guardian\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MichaelCooke\\Guardian\\GuardianServiceProvider"
+            ]
+        }
+    }
+}
