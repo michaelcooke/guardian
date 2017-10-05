@@ -3,9 +3,6 @@
 namespace MichaelCooke\Guardian;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Auth\Events\Registered as UserRegistered;
-use MichaelCooke\Guardian\Listeners\CreateUserActivation;
 
 class GuardianServiceProvider extends ServiceProvider
 {
@@ -14,7 +11,7 @@ class GuardianServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(Dispatcher $events)
+    public function boot()
     {
         $this->loadMigrations();
     }
