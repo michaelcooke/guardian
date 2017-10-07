@@ -20,7 +20,7 @@ Then, run Guardian's migrations via Artisan.
 php artisan migrate
 ```
 
-### Configure Guardian Aliases
+### Configure Aliases
 
 After that, include Guardian's facades in the `aliases` array of your project's `config/app.php` file.
 
