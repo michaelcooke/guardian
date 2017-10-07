@@ -1,6 +1,6 @@
 {
     "name": "michaelcooke/guardian",
-    "description": "A Laravel 5 package that provides a simple permissions and roles implementation",
+    "description": "A simple permissions and roles package for Laravel",
     "keywords": ["laravel", "laravel-5", "permissions", "restrictions", "roles"],
     "license": "MIT",
     "authors": [
