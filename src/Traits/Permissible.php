@@ -101,7 +101,7 @@ trait Permissible
      * permission key, evaluating all directly assigned and inherited
      * permissions and restrictions.
      *
-     * @param String $key
+     * @param  String $key
      * @return boolean
      */
     public function hasAccess(String $key)
@@ -113,8 +113,8 @@ trait Permissible
      * Determines whether or not a permissible model has a particular access
      * definition.
      *
-     * @param String $key
-     * @param String $permissibleModel
+     * @param  String $key
+     * @param  String $permissibleModel
      * @return boolean
      */
     protected function hasAccessDefinition(String $key, String $permissibleModel)
@@ -134,7 +134,7 @@ trait Permissible
      * Determines whether or not a permissible model has a particular
      * permission.
      *
-     * @param String $key
+     * @param  String $key
      * @return boolean
      */
     public function hasPermission(String $key)
@@ -146,7 +146,7 @@ trait Permissible
      * Determines whether or not a permissible model has a particular
      * restriction.
      *
-     * @param String $key
+     * @param  String $key
      * @return boolean
      */
     public function hasRestriction(String $key)
