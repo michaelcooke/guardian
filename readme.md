@@ -100,7 +100,7 @@ Access is determined by a permissible model's inherited and directly assigned pe
 In the event of a permissions conflict with a restriction during an access evaluation -- due to access inheritence or otherwise -- a restriction will *always* take precedence and prevent access to a matching permission, regardless of whether or not permission was assigned directly to the evaulated model.
 
 ```
-if ($user->hasAccess('blog.create')) {
+if ($user->hasAccess('blog.post')) {
     // User has access
 }
 ```
@@ -118,7 +118,7 @@ All directly assigned and inherited permissions for a permissible model may be a
 In addition, all permissible models may be checked to determine whether or not it has a permission assigned either directly or via inheritence with `hasPermission()`
 
 ```
-if ($user->hasPermission('blog.create')) {
+if ($user->hasPermission('blog.post')) {
     // User has permission
 }
 ```
@@ -132,7 +132,7 @@ All directly assigned and inherited restrictions for a permissible model may be 
 In addition, all permissible models may be checked to determine whether or not it has a restriction assigned either directly or via inheritence with `hasRestriction()`
 
 ```
-if ($user->hasRestriction('blog.create')) {
+if ($user->hasRestriction('blog.post')) {
     // User has restriction
 }
 ```
