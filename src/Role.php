@@ -26,17 +26,7 @@ class Role extends Model
      */
     public function permissions()
     {
-        return $this->belongsToMany('MichaelCooke\Guardian\Permission', 'role_permissions');
-    }
-
-    /**
-     * A role has many restrictions.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function restrictions()
-    {
-        return $this->belongsToMany('MichaelCooke\Guardian\Restriction', 'role_restrictions');
+        return $this->belongsToMany('MichaelCooke\Guardian\Permission', 'role_permissions')->withPivot('restrict');
     }
 
     /**

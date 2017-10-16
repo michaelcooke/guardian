@@ -27,10 +27,6 @@ class GuardianServiceProvider extends ServiceProvider
             return new Permission;
         });
 
-        $this->app->singleton('guardian.restriction', function($app) {
-            return new Restriction;
-        });
-
         $this->app->singleton('guardian.role', function($app) {
             return new Role;
         });
@@ -49,7 +45,6 @@ class GuardianServiceProvider extends ServiceProvider
     {
         return [
             'guardian.permission',
-            'guardian.restriction',
             'guardian.role',
             'guardian.user',
         ];

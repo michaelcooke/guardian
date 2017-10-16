@@ -22,7 +22,7 @@ class Permission extends Model
      */
     public function roles()
     {
-        return $this->belongsToMany('MichaelCooke\Guardian\Role', 'role_permissions');
+        return $this->belongsToMany('MichaelCooke\Guardian\Role', 'role_permissions')->withPivot('restrict');
     }
 
     /**
@@ -32,6 +32,6 @@ class Permission extends Model
      */
     public function users()
     {
-        return $this->belongsToMany('MichaelCooke\Guardian\User', 'user_permissions');
+        return $this->belongsToMany('MichaelCooke\Guardian\User', 'user_permissions')->withPivot('restrict');
     }
 }

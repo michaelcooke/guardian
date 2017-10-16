@@ -7,9 +7,10 @@ trait Permissible
     /**
      * Returns all access definitions for a permissible model.
      *
+     * @param  boolean $restrictions
      * @return \Illuminate\Support\Collection
      */
-    protected function getAccessDefinitions(String $accessDefinition)
+    protected function getAccessDefinitions(bool $restrictions)
     {
         /*
          * In order to store all directly assigned and inherited access
@@ -20,7 +21,7 @@ trait Permissible
          * to the new collection.
          */
         $accessDefinitions = collect([]);
-        $modelAccessDefinitions = $this->{$accessDefinition}()->get();
+        $modelAccessDefinitions = $this->permissions()->wherePivot('restrict', $restrictions)->get();
 
         /*
          * If there are directly assigned access definitions for the
@@ -53,7 +54,7 @@ trait Permissible
                  */
                 if ($inheritedModels->isNotEmpty()) {
                     foreach ($inheritedModels as $inheritedModel) {
-                        $inheritedModelAccessDefinitions = $inheritedModel->{$accessDefinition}()->get();
+                        $inheritedModelAccessDefinitions = $inheritedModel->permissions()->wherePivot('restrict', $restrictions)->get();
 
                         /*
                          * If the instance of an inherited model has access
@@ -80,9 +81,9 @@ trait Permissible
      *
      * @return \Illuminate\Support\Collection
      */
-    public function getPermissions()
+    public function getAllPermissionsAttribute()
     {
-        return $this->getAccessDefinitions('permissions');
+        return $this->getAccessDefinitions(false);
     }
 
     /**
@@ -91,9 +92,29 @@ trait Permissible
      *
      * @return \Illuminate\Support\Collection
      */
-    public function getRestrictions()
+    public function getAllRestrictionsAttribute()
     {
-        return $this->getAccessDefinitions('restrictions');
+        return $this->getAccessDefinitions(true);
+    }
+
+    /**
+     * Get the permissible model's restrictions.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getPermissionsAttribute()
+    {
+        return $this->permissions()->wherePivot('restrict', false)->get();
+    }
+
+    /**
+     * Get the permissible model's restrictions.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getRestrictionsAttribute()
+    {
+        return $this->permissions()->wherePivot('restrict', true)->get();
     }
 
     /**
@@ -117,9 +138,9 @@ trait Permissible
      * @param  String $permissibleModel
      * @return boolean
      */
-    protected function hasAccessDefinition(String $key, String $permissibleModel)
+    protected function hasAccessDefinition(String $key, bool $restriction)
     {
-        $accessDefinitions = $this->getAccessDefinitions($permissibleModel);
+        $accessDefinitions = $this->getAccessDefinitions($restriction);
 
         foreach ($accessDefinitions as $accessDefinition) {
             if (fnmatch($accessDefinition->key, $key)) {
@@ -139,7 +160,7 @@ trait Permissible
      */
     public function hasPermission(String $key)
     {
-        return $this->hasAccessDefinition($key, 'permissions');
+        return $this->hasAccessDefinition($key, false);
     }
 
     /**
@@ -151,6 +172,6 @@ trait Permissible
      */
     public function hasRestriction(String $key)
     {
-        return $this->hasAccessDefinition($key, 'restrictions');
+        return $this->hasAccessDefinition($key, true);
     }
 }
