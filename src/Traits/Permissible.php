@@ -2,8 +2,47 @@
 
 namespace MichaelCooke\Guardian\Traits;
 
+use MichaelCooke\Guardian\Permission;
+
 trait Permissible
 {
+    /**
+     * Adds an access definition to a permissible model.
+     *
+     * @param  \MichaelCooke\Guardian\Permission
+     * @return Integer
+     */
+    protected function addAccessDefinition(Permission $permission, bool $restriction)
+    {
+        if ($this->hasPermission($permission->key) || $this->hasRestriction($permission->key)) {
+            return $this->permissions()->updateExistingPivot($permission->id, ['restrict' => $restriction]);
+        }
+
+        return $this->permissions()->attach($permission, ['restrict' => $restriction]);
+    }
+
+    /**
+     * Adds a permission to a permissible model.
+     *
+     * @param  \MichaelCooke\Guardian\Permission
+     * @return Integer
+     */
+    public function addPermission(Permission $permission)
+    {
+        return $this->addAccessDefinition($permission, false);
+    }
+
+    /**
+     * Adds a restriction to a permissible model.
+     *
+     * @param  \MichaelCooke\Guardian\Permission
+     * @return Integer
+     */
+    public function addRestriction(Permission $permission)
+    {
+        return $this->addAccessDefinition($permission, true);
+    }
+
     /**
      * Returns all access definitions for a permissible model.
      *
