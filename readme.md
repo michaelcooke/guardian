@@ -20,16 +20,6 @@ Then, run Guardian's migrations via Artisan.
 php artisan migrate
 ```
 
-### Configure Aliases
-
-After that, include Guardian's facades in the `aliases` array of your project's `config/app.php` file.
-
-```
-'Permission' => MichaelCooke\Guardian\Facades\Permission::class,
-'Restriction' => MichaelCooke\Guardian\Facades\Restriction::class,
-'Role' => MichaelCooke\Guardian\Facades\Role::class,
-```
-
 ### Configure App User Model
 
 

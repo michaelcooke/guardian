@@ -22,7 +22,11 @@
         "laravel": {
             "providers": [
                 "MichaelCooke\\Guardian\\GuardianServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "Permission": "MichaelCooke\\Guardian\\Facades\\Permission::class",
+                "Role": "MichaelCooke\\Guardian\\Facades\\Role::class"
+            }
         }
     }
 }
