@@ -7,7 +7,7 @@ use Illuminate\Support\ServiceProvider;
 class GuardianServiceProvider extends ServiceProvider
 {
     /**
-     * Bootstrap the application services.
+     * Perform post-registration booting of services.
      *
      * @return void
      */
@@ -17,7 +17,7 @@ class GuardianServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register the application services.
+     * Register bindings in the container.
      *
      * @return void
      */
@@ -29,10 +29,6 @@ class GuardianServiceProvider extends ServiceProvider
 
         $this->app->singleton('guardian.role', function($app) {
             return new Role;
-        });
-
-        $this->app->singleton('guardian.user', function($app) {
-            return new User;
         });
     }
 
@@ -46,7 +42,6 @@ class GuardianServiceProvider extends ServiceProvider
         return [
             'guardian.permission',
             'guardian.role',
-            'guardian.user',
         ];
     }
 
