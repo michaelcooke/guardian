@@ -24,8 +24,8 @@
                 "MichaelCooke\\Guardian\\GuardianServiceProvider"
             ],
             "aliases": {
-                "Permission": "MichaelCooke\\Guardian\\Facades\\Permission::class",
-                "Role": "MichaelCooke\\Guardian\\Facades\\Role::class"
+                "Permission": "MichaelCooke\\Guardian\\Facades\\Permission",
+                "Role": "MichaelCooke\\Guardian\\Facades\\Role"
             }
         }
     }
