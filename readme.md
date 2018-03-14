@@ -1,6 +1,6 @@
 # Guardian
 
-Guardian is a simple permissions and roles package for Laravel that provides permissions, restrictions, roles, and easily configured access inheritence.
+Guardian is a simple permissions and roles package for Laravel that provides permissions, roles and easily configurable access inheritence.
 
 ## Installing Guardian
 
@@ -77,17 +77,34 @@ class User extends GuardianUser
 
 ## Using Guardian
 
-### Access Definitions
+### Permissions
 
-"Access definition" is just a fancy term to describe either a `Permission` or a `Restriction`. Access definitions may be used to control access to particular features or functions in your application.
+Permissions may be used to control access to particular features or functions in your application. They're defined by a key, as well as a corresponding boolean value that controls whether or not access to that permission key should be granted or blocked in all circumstances.
+
+You're free to make these keys whatever you want, but adhering to a granular format is recommended for usage in your applications. An example for a forum section in your application may look like this:
+
+```
+forums.*
+    forums.admin.*
+        forums.admin.create
+        forums.admin.edit
+        forums.admin.delete
+    forums.moderate.*
+        forums.moderate.{forumId}.*
+            forums.moderate.{forumId}.lock
+            forums.moderate.{forumId}.move
+            forums.moderate.{forumId}.pin
+    forums.general.*
+        forums.general.{forumId}.*
+            forums.general.{forumId}.create
+            forums.general.{forumId}.edit
+            forums.general.{forumId}.delete
+            forums.general.{forumId}.reply
+```
 
 ### Access
 
-To check whether or not a user or role has access to a particular function or feature, simply call `hasPermission()` with a permission value. It will return a boolean value based on whether or not access is granted.
-
-Access is determined by a permissible model's inherited and directly assigned permissions and restrictions. If a permissible model's inherited access contains permission to the key being evaluated, and no restriction exists on either the model or it's inherited access, access will be granted.
-
-In the event of a permissions conflict with a restriction during an access evaluation -- due to access inheritence or otherwise -- a restriction will *always* take precedence and prevent access to a matching permission, regardless of whether or not permission was assigned directly to the evaulated model.
+To check whether or not a user or role has access to a particular permission key, simply call `hasPermission()` with a permission value. It will return a boolean value based on whether or not access is granted.
 
 ```
 if ($user->hasAccess('blog.post')) {
@@ -95,41 +112,17 @@ if ($user->hasAccess('blog.post')) {
 }
 ```
 
+Access is determined by a model's inherited and directly assigned permissions. If a model's inherited access contains permission to the key being evaluated, and no restriction exists on either the model or it's inherited access, access will be granted.
+
+In the event of a permissions conflict with a restricted permission during an access evaluation -- due to access inheritence or otherwise -- the restriction will *always* take precedence and prevent access to a matching permission, regardless of whether or not permission was assigned directly to the evaulated model. This is particularly useful for a "banned" role, where a user should be barred from accessing a particular portion of your app, despite any other permissions potentially assigned.
+
 ### Access Inheritence
 
-By default, a User will inherit all access definitions from any roles they are associated with; All permissions and restrictions from a user's roles will trickle down and to apply to the user. Access definitions obtained through inheritence are not weighed less than directly assigned access definitions during access evaluation.
+By default, a User will inherit all permissions from any roles they are associated with; All permissions from a user's roles will trickle down and to apply to the user. Permissions obtained through inheritence are not weighed differently than directly assigned permissions.
 
-#### Permissions
+### Wildcards
 
-Permissions allow you to grant a user access to a particular feature or function in your app. A permission in its basic form may be something like `blog.post`, wherein permission to create a new blog post is defined.
-
-All directly assigned and inherited permissions for a permissible model may be accessed through the `getPermissions()` function.
-
-In addition, all permissible models may be checked to determine whether or not it has a permission assigned either directly or via inheritence with `hasPermission()`
-
-```
-if ($user->hasPermission('blog.post')) {
-    // User has permission
-}
-```
-
-#### Restrictions
-
-Restrictions allow you to block a particular user or role from having access to a feature or function in your app, even if permission was otherwise assigned. This is particularly useful for a "banned" role, where a user should be barred from accessing most of your app, despite any other permissions potentially assigned.
-
-All directly assigned and inherited restrictions for a permissible model may be accessed through the `getRestrictions()` function.
-
-In addition, all permissible models may be checked to determine whether or not it has a restriction assigned either directly or via inheritence with `hasRestriction()`
-
-```
-if ($user->hasRestriction('blog.post')) {
-    // User has restriction
-}
-```
-
-#### Wildcards
-
-Guardian uses UNIX-style glob pattern matching in access definition evaluation. This grants access to several wildcard operators, the most relevant of which is `*` to match all characters including none at all.
+Guardian uses UNIX-style glob pattern matching in permission evaluation. This grants access to several wildcard operators, the most relevant of which is `*` to match all characters including none at all.
 
 [More information on glob pattern matching is available on Wikipedia.](https://en.wikipedia.org/wiki/Glob_(programming)#Syntax)
 
@@ -137,8 +130,8 @@ Guardian uses UNIX-style glob pattern matching in access definition evaluation. 
 
 ### Permissible Models and the Permissible Trait
 
-A "permissible model" is simply a model that uses the `Permissible` trait included with Guardian. It allows models to be associated with access definitions, and inherit access definitions from other permissible models.
+A "permissible model" is simply a model that uses the `Permissible` trait included with Guardian. It allows models to be associated with permissions, and inherit permissions from other permissible models.
 
-For example, a user will inherit access definitions from their associated roles out of the box. This is possible because both the user and role models use the `Permissible` trait, and the user model is configured to inherit access definitions from any role that may be associated with the user.
+For example, a user will inherit permissions from their associated roles out of the box. This is possible because both the user and role models use the `Permissible` trait, and the user model is configured to inherit permissions from any role that may be associated with the user.
 
 Access for a particular permissible model is inherited through whatever other permissible models are defined in a model's `$inheritsAccessFrom` property.

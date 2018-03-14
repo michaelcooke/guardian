@@ -2,188 +2,32 @@
 
 namespace MichaelCooke\Guardian\Traits;
 
-use MichaelCooke\Guardian\Permission;
+use Illuminate\Support\Collection;
 
 trait Permissible
 {
     /**
-     * Adds an access definition to a permissible model.
+     * Get the model's permissions.
      *
-     * @param  \MichaelCooke\Guardian\Permission
-     * @return Integer
+     * @param  string  $permissions
+     * @return Illuminate\Support\Collection
      */
-    protected function addAccessDefinition(Permission $permission, bool $restriction)
+    public function getPermissionsAttribute($permissions): Collection
     {
-        if ($this->hasPermission($permission->key) || $this->hasRestriction($permission->key)) {
-            return $this->permissions()->updateExistingPivot($permission->id, ['restrict' => $restriction]);
-        }
-
-        return $this->permissions()->attach($permission, ['restrict' => $restriction]);
+        return collect(json_decode($permissions, true));
     }
 
     /**
-     * Adds a permission to a permissible model.
+     * Determine if the model has access with a permission key.
      *
-     * @param  \MichaelCooke\Guardian\Permission
-     * @return Integer
-     */
-    public function addPermission(Permission $permission)
-    {
-        return $this->addAccessDefinition($permission, false);
-    }
-
-    /**
-     * Adds a restriction to a permissible model.
-     *
-     * @param  \MichaelCooke\Guardian\Permission
-     * @return Integer
-     */
-    public function addRestriction(Permission $permission)
-    {
-        return $this->addAccessDefinition($permission, true);
-    }
-
-    /**
-     * Returns all access definitions for a permissible model.
-     *
-     * @param  boolean $restrictions
-     * @return \Illuminate\Support\Collection
-     */
-    protected function getAccessDefinitions(bool $restrictions)
-    {
-        /*
-         * In order to store all directly assigned and inherited access
-         * definitions for the permissible model, we create a new
-         * collection that we'll return later. We'll also get
-         * any directly assigned access definitions for
-         * the permissible model so we can add them
-         * to the new collection.
-         */
-        $accessDefinitions = collect([]);
-        $modelAccessDefinitions = $this->permissions()->wherePivot('restrict', $restrictions)->get();
-
-        /*
-         * If there are directly assigned access definitions for the
-         * permissible model, we need to iterate over each of
-         * them and put them in the new collection we're
-         * returning later on.
-         */
-        if ($modelAccessDefinitions->isNotEmpty()) {
-            foreach ($modelAccessDefinitions as $modelAccessDefinition) {
-                $accessDefinitions->push($modelAccessDefinition);
-            }
-        }
-
-        /*
-         * If the permissible model inherits access definitions from other
-         * permissible models, we need to iterate over each of them to
-         * get their assigned access definitions which will be
-         * inherited by the permissible model we're
-         * getting all access definitions for.
-         */
-        if ($this->inheritsAccessFrom != null) {
-            foreach ($this->inheritsAccessFrom as $permissibleModel) {
-                $inheritedModels = $this->{$permissibleModel}()->get();
-
-                /*
-                 * If the permissible model belongs to multiple instances of
-                 * a model the original permissible model inherits access
-                 * definitions from, we need to iterate over each one
-                 * them to get their access definitions.
-                 */
-                if ($inheritedModels->isNotEmpty()) {
-                    foreach ($inheritedModels as $inheritedModel) {
-                        $inheritedModelAccessDefinitions = $inheritedModel->permissions()->wherePivot('restrict', $restrictions)->get();
-
-                        /*
-                         * If the instance of an inherited model has access
-                         * definitions, we need to iterate over each of
-                         * them and add them to the collection we're
-                         * returning.
-                         */
-                        if ($inheritedModelAccessDefinitions->isNotEmpty()) {
-                            foreach ($inheritedModelAccessDefinitions as $inheritedModelAccessDefinition) {
-                                $accessDefinitions->push($inheritedModelAccessDefinition);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return $accessDefinitions;
-    }
-    
-    /**
-     * Returns all permissions explicitly assigned and inherited for a
-     * permissible model.
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function getAllPermissionsAttribute()
-    {
-        return $this->getAccessDefinitions(false);
-    }
-
-    /**
-     * Returns all restrictions explicitly assigned and inherited for a
-     * permissible model.
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    public function getAllRestrictionsAttribute()
-    {
-        return $this->getAccessDefinitions(true);
-    }
-
-    /**
-     * Get the permissible model's restrictions.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getPermissionsAttribute()
-    {
-        return $this->permissions()->wherePivot('restrict', false)->get();
-    }
-
-    /**
-     * Get the permissible model's restrictions.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getRestrictionsAttribute()
-    {
-        return $this->permissions()->wherePivot('restrict', true)->get();
-    }
-
-    /**
-     * Determines whether or not a permissible model has access with a given
-     * permission key, evaluating all directly assigned and inherited
-     * permissions and restrictions.
-     *
-     * @param  String $key
+     * @param  string  $permissionKey
      * @return boolean
      */
-    public function hasAccess(String $key)
+    public function hasAccess(string $permissionKey): bool
     {
-        return !$this->hasRestriction($key) && $this->hasPermission($key);
-    }
-
-    /**
-     * Determines whether or not a permissible model has a particular access
-     * definition.
-     *
-     * @param  String $key
-     * @param  String $permissibleModel
-     * @return boolean
-     */
-    protected function hasAccessDefinition(String $key, bool $restriction)
-    {
-        $accessDefinitions = $this->getAccessDefinitions($restriction);
-
-        foreach ($accessDefinitions as $accessDefinition) {
-            if (fnmatch($accessDefinition->key, $key)) {
-                return true;
+        foreach ($this->getPermissions() as $key => $value) {
+            if (fnmatch($key, $permissionKey)) {
+                return $value;
             }
         }
 
@@ -191,26 +35,74 @@ trait Permissible
     }
 
     /**
-     * Determines whether or not a permissible model has a particular
-     * permission.
+     * Get all inherited permissions for the model.
      *
-     * @param  String $key
-     * @return boolean
+     * @return Illuminate\Support\Collection
      */
-    public function hasPermission(String $key)
+    public function getPermissions(): Collection
     {
-        return $this->hasAccessDefinition($key, false);
+        $permissions = $this->permissions;
+
+        if ($this->inheritsAccessFrom != null) {
+            foreach ($this->inheritsAccessFrom as $model) {
+                $inheritedModels = $this->{$model}()->get();
+                if ($inheritedModels->isNotEmpty()) {
+                    foreach ($inheritedModels as $model) {
+                        $inheritedModelPermissions = $model->permissions;
+                        $permissions = $this->mergePermissions($permissions, $inheritedModelPermissions);
+                    }
+                }
+            }
+        }
+
+        return $permissions;
     }
 
     /**
-     * Determines whether or not a permissible model has a particular
-     * restriction.
+     * Add or override an existing permission for the model.
      *
-     * @param  String $key
      * @return boolean
      */
-    public function hasRestriction(String $key)
+    public function addPermission(string $permissionKey, bool $allow = true): bool
     {
-        return $this->hasAccessDefinition($key, true);
+        $this->permissions = $this->permissions->put($permissionKey, $allow)->toJson();
+        return $this->save();
+    }
+
+    /**
+     * Alias for addPermission().
+     *
+     * @return boolean
+     */
+    public function updatePermission(string $permissionKey, bool $allow = true): bool
+    {
+        $this->addPermission($permissionKey, $allow);
+    }
+
+    /**
+     * Remove a permission from the model.
+     *
+     * @return boolean
+     */
+    public function removePermission(string $permissionKey): bool
+    {
+        $this->permissions = $this->permissions->forget($permissionKey)->toJson();
+        return $this->save();
+    }
+
+    /**
+     * Merge two permissions collections.
+     *
+     * @return Illuminate\Support\Collection
+     */
+    protected function mergePermissions(Collection $collectionOne, Collection $collectionTwo): Collection
+    {
+        foreach ($collectionTwo as $key => $value) {
+            if ($collectionOne->get($key) == null ||
+                $collectionOne->get($key) && !$collectionTwo->get($key)) {
+                $collectionOne->put($key, $value);
+            }
+        }
+        return $collectionOne;
     }
 }
