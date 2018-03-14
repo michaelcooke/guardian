@@ -38,16 +38,6 @@ class User extends Authenticatable
     ];
 
     /**
-     * A user has many permissions.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function permissions()
-    {
-        return $this->belongsToMany('MichaelCooke\Guardian\Permission', 'user_permissions')->withPivot('restrict');
-    }
-
-    /**
      * A user has many roles.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

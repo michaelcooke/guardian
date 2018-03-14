@@ -23,10 +23,6 @@ class GuardianServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->singleton('guardian.permission', function($app) {
-            return new Permission;
-        });
-
         $this->app->singleton('guardian.role', function($app) {
             return new Role;
         });
@@ -40,7 +36,6 @@ class GuardianServiceProvider extends ServiceProvider
     public function provides()
     {
         return [
-            'guardian.permission',
             'guardian.role',
         ];
     }
