@@ -16,18 +16,8 @@ class Role extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'slug', 'description',
+        'name', 'slug',
     ];
-
-    /**
-     * A role has many permissions.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function permissions()
-    {
-        return $this->belongsToMany('MichaelCooke\Guardian\Permission', 'role_permissions')->withPivot('restrict');
-    }
 
     /**
      * A role has many users.
@@ -36,6 +26,6 @@ class Role extends Model
      */
     public function users()
     {
-        return $this->belongsToMany('MichaelCooke\Guardian\User', 'user_permissions');
+        return $this->belongsToMany('MichaelCooke\Guardian\User', 'user_roles');
     }
 }
